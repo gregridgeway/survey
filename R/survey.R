@@ -1116,8 +1116,7 @@ svycoxph.survey.design<-function(formula,design,subset=NULL,rescale=TRUE,...){
     g$model <- TRUE
     
     ##need to rescale weights for stability
-    if(rescale)
-       data$.survey.prob.weights<-(1/design$prob)/mean(1/design$prob)
+    data$.survey.prob.weights <- (1/design$prob) / ifelse(rescale, mean(1/design$prob), 1)
     if (!all(all.vars(formula) %in% names(data))) 
         stop("all variables must be in design= argument")
     g<-with(list(data=data), eval(g))
@@ -1275,8 +1274,7 @@ svyglm.survey.design<-function(formula,design,subset=NULL, family=stats::gaussia
       g[[1]]<-quote(glm)      
 
       ##need to rescale weights for stability in binomial
-      if(rescale)
-        data$.survey.prob.weights<-(1/design$prob)/mean(1/design$prob)
+      data$.survey.prob.weights <- (1/design$prob) / ifelse(rescale, mean(1/design$prob), 1)
       if (!all(all.vars(formula) %in% names(data))) 
 	stop("all variables must be in design= argument")
       g<-with(list(data=data), eval(g))
