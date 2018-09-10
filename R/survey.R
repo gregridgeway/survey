@@ -1250,7 +1250,7 @@ svyglm<-function(formula, design,subset=NULL,family=stats::gaussian(),start=NULL
   UseMethod("svyglm",design)
 }
 
-svyglm.survey.design<-function(formula,design,subset=NULL, family=stats::gaussian(),start=NULL,...){
+svyglm.survey.design<-function(formula,design,subset=NULL, family=stats::gaussian(),start=NULL,rescale=TRUE,...){
 
       subset<-substitute(subset)
       subset<-eval(subset, model.frame(design), parent.frame())
@@ -1264,6 +1264,7 @@ svyglm.survey.design<-function(formula,design,subset=NULL, family=stats::gaussia
       g$design<-NULL
       g$var<-NULL
       g$family<-family
+      g$rescale<-NULL
       if (is.null(g$weights))
         g$weights<-quote(.survey.prob.weights)
       else 
@@ -1272,7 +1273,8 @@ svyglm.survey.design<-function(formula,design,subset=NULL, family=stats::gaussia
       g[[1]]<-quote(glm)      
 
       ##need to rescale weights for stability in binomial
-      data$.survey.prob.weights<-(1/design$prob)/mean(1/design$prob)
+      if(rescale)
+        data$.survey.prob.weights<-(1/design$prob)/mean(1/design$prob)
       if (!all(all.vars(formula) %in% names(data))) 
 	stop("all variables must be in design= argument")
       g<-with(list(data=data), eval(g))
