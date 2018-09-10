@@ -1086,12 +1086,12 @@ svytable.survey.design<-function(formula, design, Ntotal=NULL, round=FALSE,...){
   tbl
 }
 
-svycoxph<-function(formula,design,subset=NULL,...){
+svycoxph<-function(formula,design,subset=NULL,rescale=TRUE,...){
   .svycheck(design)
   UseMethod("svycoxph",design)
 }
 
-svycoxph.survey.design<-function(formula,design,subset=NULL,...){
+svycoxph.survey.design<-function(formula,design,subset=NULL,rescale=TRUE,...){
     subset<-substitute(subset)
     subset<-eval(subset, model.frame(design),parent.frame())
     if (!is.null(subset))
@@ -1105,6 +1105,7 @@ svycoxph.survey.design<-function(formula,design,subset=NULL,...){
     g$formula<-eval.parent(g$formula)
     g$design<-NULL
     g$var<-NULL
+    g$rescale<-NULL
     if (is.null(g$weights))
       g$weights<-quote(.survey.prob.weights)
     else
@@ -1115,7 +1116,8 @@ svycoxph.survey.design<-function(formula,design,subset=NULL,...){
     g$model <- TRUE
     
     ##need to rescale weights for stability
-    data$.survey.prob.weights<-(1/design$prob)/mean(1/design$prob)
+    if(rescale)
+       data$.survey.prob.weights<-(1/design$prob)/mean(1/design$prob)
     if (!all(all.vars(formula) %in% names(data))) 
         stop("all variables must be in design= argument")
     g<-with(list(data=data), eval(g))
@@ -1245,7 +1247,7 @@ anova.svycoxph<-function(object,...){
     stop("No anova method for survey models")
 }
 
-svyglm<-function(formula, design,subset=NULL,family=stats::gaussian(),start=NULL, ...){
+svyglm<-function(formula, design,subset=NULL,family=stats::gaussian(),start=NULL,rescale=TRUE, ...){
   .svycheck(design)
   UseMethod("svyglm",design)
 }
